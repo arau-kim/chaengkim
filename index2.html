@@ -1,0 +1,666 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<meta name="theme-color" content="#1D9E75">
+<title>챙김 — 나를 위한 건강 동행</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;500;700&display=swap" rel="stylesheet">
+<style>
+:root{
+  --g:#1D9E75;--gl:#E1F5EE;--gd:#0F6E56;
+  --a:#EF9F27;--al:#FAEEDA;--ad:#854F0B;
+  --r:#E24B4A;--rl:#FCEBEB;--rd:#A32D2D;
+  --p:#7F77DD;--pl:#EEEDFE;--pd:#3C3489;
+  --n50:#F8F8F6;--n100:#F1EFE8;--n200:#E2E0D9;
+  --n400:#888780;--n600:#5F5E5A;--n900:#1A1A18;
+  --w:#fff;
+  --f:'Noto Sans KR',sans-serif;
+}
+*{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent;}
+body{font-family:var(--f);background:#E8EBF0;display:flex;justify-content:center;min-height:100vh;}
+#app{width:100%;max-width:430px;min-height:100vh;background:var(--w);display:flex;flex-direction:column;position:relative;}
+
+/* 화면 */
+.scr{display:none;flex-direction:column;flex:1;animation:fi .2s ease;}
+.scr.on{display:flex;}
+@keyframes fi{from{opacity:0;transform:translateY(5px)}to{opacity:1;transform:translateY(0)}}
+
+/* 스크롤 */
+.sa{flex:1;overflow-y:auto;-webkit-overflow-scrolling:touch;padding-bottom:90px;}
+.sa::-webkit-scrollbar{display:none;}
+
+/* 헤더 */
+.hdr{padding:52px 20px 16px;background:var(--w);border-bottom:1px solid var(--n100);}
+.hdr h1{font-size:22px;font-weight:700;color:var(--n900);}
+.hdr p{font-size:13px;color:var(--n400);margin-top:3px;}
+
+/* 섹션 라벨 */
+.sl{font-size:11px;font-weight:700;color:var(--n400);letter-spacing:.08em;padding:20px 20px 8px;}
+
+/* 카드 */
+.cd{margin:0 16px 12px;background:var(--w);border-radius:16px;border:1px solid var(--n200);overflow:hidden;}
+.cdi{padding:16px;}
+
+/* 배지 */
+.b{display:inline-block;padding:3px 10px;border-radius:20px;font-size:11px;font-weight:700;white-space:nowrap;}
+.bg{background:var(--gl);color:var(--gd);}
+.ba{background:var(--al);color:var(--ad);}
+.br{background:var(--rl);color:var(--rd);}
+.bp{background:var(--pl);color:var(--pd);}
+.bn{background:var(--n100);color:var(--n600);}
+
+/* 알림 */
+.nt{margin:16px 16px 0;padding:14px 16px;border-radius:12px;font-size:13px;line-height:1.6;}
+.nt-g{background:var(--gl);color:var(--gd);}
+.nt-a{background:var(--al);color:var(--ad);}
+.nt-r{background:var(--rl);color:var(--rd);}
+
+/* 버튼 */
+.btn{display:block;width:calc(100% - 32px);margin:8px 16px;padding:15px;border:none;border-radius:12px;font-family:var(--f);font-size:15px;font-weight:700;cursor:pointer;text-align:center;transition:transform .1s,opacity .1s;}
+.btn:active{transform:scale(.97);opacity:.85;}
+.btn-g{background:var(--g);color:#fff;}
+.btn-n{background:var(--n100);color:var(--n600);}
+.btn-k{background:#FEE500;color:#3A1D1D;}
+.btn-call{background:#E6F1FB;color:#185FA5;}
+
+/* 폼 */
+.fs{padding:16px;}
+.fg{margin-bottom:14px;}
+.fg label{display:block;font-size:12px;font-weight:700;color:var(--n600);margin-bottom:6px;}
+.fg input,.fg select,.fg textarea{width:100%;padding:12px 14px;border:1px solid var(--n200);border-radius:8px;font-family:var(--f);font-size:14px;color:var(--n900);background:var(--n50);outline:none;transition:border-color .15s;-webkit-appearance:none;}
+.fg input:focus,.fg select:focus,.fg textarea:focus{border-color:var(--g);background:var(--w);}
+.fg textarea{height:80px;resize:none;line-height:1.5;}
+.fr{display:grid;grid-template-columns:1fr 1fr;gap:10px;}
+
+/* 바텀 네비 */
+.bnav{position:fixed;bottom:0;left:50%;transform:translateX(-50%);width:100%;max-width:430px;background:var(--w);border-top:1px solid var(--n200);display:flex;padding:8px 0 max(16px,env(safe-area-inset-bottom));z-index:100;}
+.ni{flex:1;display:flex;flex-direction:column;align-items:center;gap:4px;cursor:pointer;padding:4px 0;}
+.ni:active{opacity:.6;}
+.nl{font-size:10px;font-weight:500;color:var(--n400);}
+.ni.on .nl{color:var(--g);font-weight:700;}
+.ndot{width:4px;height:4px;border-radius:50%;background:var(--g);margin-top:2px;opacity:0;}
+.ni.on .ndot{opacity:1;}
+
+/* 홈 pill row */
+.pr{display:flex;align-items:center;gap:12px;padding:12px 16px;border-bottom:1px solid var(--n100);cursor:pointer;}
+.pr:last-child{border-bottom:none;}
+.pd-dot{width:10px;height:10px;border-radius:50%;flex-shrink:0;}
+.dg{background:var(--g);}.da{background:var(--a);}.dn{background:var(--n200);}
+.pi{flex:1;min-width:0;}
+.ptl{font-size:12px;color:var(--n400);margin-bottom:2px;}
+.pn{font-size:14px;font-weight:500;color:var(--n900);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+
+/* 약 탭 서브탭 */
+.stab{display:flex;margin:16px 16px 0;background:var(--n100);border-radius:12px;padding:4px;gap:4px;}
+.stab-btn{flex:1;padding:9px;border:none;border-radius:9px;font-family:var(--f);font-size:13px;font-weight:500;cursor:pointer;background:transparent;color:var(--n600);transition:all .15s;}
+.stab-btn.on{background:var(--w);color:var(--g);font-weight:700;box-shadow:0 1px 4px rgba(0,0,0,.1);}
+
+/* 약 검색 */
+.sw{position:relative;margin:12px 16px 0;}
+.si{width:100%;padding:13px 16px 13px 44px;border:1.5px solid var(--n200);border-radius:12px;font-family:var(--f);font-size:14px;color:var(--n900);background:var(--n50);outline:none;transition:border-color .15s;}
+.si:focus{border-color:var(--g);background:var(--w);}
+.sic{position:absolute;left:14px;top:50%;transform:translateY(-50%);pointer-events:none;}
+.sbtn{position:absolute;right:10px;top:50%;transform:translateY(-50%);background:var(--g);color:#fff;border:none;border-radius:8px;padding:6px 14px;font-family:var(--f);font-size:13px;font-weight:700;cursor:pointer;}
+.chip-list{display:flex;gap:8px;padding:8px 16px 4px;overflow-x:auto;}
+.chip-list::-webkit-scrollbar{display:none;}
+.chip{flex-shrink:0;padding:6px 14px;border-radius:20px;font-size:13px;font-weight:500;border:1.5px solid var(--n200);background:var(--w);color:var(--n600);cursor:pointer;}
+.chip:active{background:var(--g);color:#fff;border-color:var(--g);}
+.drc{margin:12px 16px 0;background:var(--w);border-radius:16px;border:1px solid var(--n200);overflow:hidden;}
+.drh{padding:14px 16px;border-bottom:1px solid var(--n100);display:flex;justify-content:space-between;align-items:center;cursor:pointer;}
+.drn{font-size:15px;font-weight:700;color:var(--n900);}
+.drc2{font-size:12px;color:var(--n400);margin-top:2px;}
+.dsec{padding:12px 16px;border-bottom:1px solid var(--n100);}
+.dsec:last-child{border-bottom:none;}
+.dst{font-size:11px;font-weight:700;color:var(--n400);letter-spacing:.06em;margin-bottom:6px;}
+.dsb{font-size:13px;color:var(--n900);line-height:1.7;}
+.warnb{background:var(--rl);border-radius:8px;padding:10px 14px;margin-top:6px;}
+.warnb p{font-size:12px;color:var(--rd);line-height:1.6;}
+.ld{display:flex;flex-direction:column;align-items:center;padding:40px 20px;color:var(--n400);}
+.spin{width:32px;height:32px;border:3px solid var(--n200);border-top-color:var(--g);border-radius:50%;animation:sp .7s linear infinite;margin-bottom:12px;}
+@keyframes sp{to{transform:rotate(360deg)}}
+.eb{text-align:center;padding:40px 20px;color:var(--n400);}
+.eb p{font-size:14px;margin-top:8px;line-height:1.6;}
+
+/* 영양제 */
+.sc{margin:0 16px 10px;background:var(--w);border-radius:16px;border:1px solid var(--n200);padding:16px;}
+.sc.rec{border:2px solid var(--g);}
+.sh{display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:8px;gap:8px;}
+.sn{font-size:15px;font-weight:700;color:var(--n900);}
+.sw2{font-size:13px;color:var(--n600);line-height:1.6;margin-bottom:10px;}
+.sp2{display:flex;align-items:flex-start;gap:6px;margin-top:5px;}
+.spd{width:6px;height:6px;border-radius:50%;flex-shrink:0;margin-top:5px;}
+.dok{background:var(--g);}.dwn{background:var(--r);}
+.spt{font-size:12px;line-height:1.5;}
+.tok{color:var(--gd);}.twn{color:var(--rd);}
+
+/* 동행+케어 탭 */
+.care-header{margin:16px 16px 0;background:linear-gradient(135deg,var(--g),#15755A);border-radius:16px;padding:20px;color:#fff;}
+.care-title{font-size:17px;font-weight:700;margin-bottom:6px;}
+.care-sub{font-size:13px;opacity:.85;line-height:1.5;}
+.care-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin:12px 16px 0;}
+.care-box{background:var(--w);border-radius:14px;border:1px solid var(--n200);padding:16px;cursor:pointer;transition:border-color .15s;}
+.care-box:active{border-color:var(--g);}
+.care-box-icon{width:36px;height:36px;border-radius:10px;display:flex;align-items:center;justify-content:center;margin-bottom:10px;}
+.care-box h3{font-size:13px;font-weight:700;color:var(--n900);margin-bottom:3px;}
+.care-box p{font-size:11px;color:var(--n400);line-height:1.4;}
+.kakao-btn{display:flex;align-items:center;justify-content:center;gap:8px;width:calc(100% - 32px);margin:8px 16px;padding:15px;border:none;border-radius:12px;font-family:var(--f);font-size:15px;font-weight:700;cursor:pointer;background:#FEE500;color:#3A1D1D;transition:transform .1s,opacity .1s;}
+.kakao-btn:active{transform:scale(.97);}
+.route-card{margin:0 16px 10px;background:var(--w);border-radius:16px;border:1px solid var(--n200);padding:14px;display:flex;gap:12px;align-items:flex-start;}
+.route-card.rec{border:2px solid var(--g);}
+.ri{width:40px;height:40px;border-radius:10px;display:flex;align-items:center;justify-content:center;flex-shrink:0;}
+.ri-g{background:var(--gl);}.ri-b{background:#E6F1FB;}.ri-a{background:var(--al);}
+.rti{font-size:14px;font-weight:700;color:var(--n900);margin-bottom:3px;}
+.rtd{font-size:12px;color:var(--n600);line-height:1.5;}
+.rtm{display:flex;gap:6px;margin-top:6px;flex-wrap:wrap;}
+
+/* 확인 */
+.cc{text-align:center;padding:32px 20px 20px;}
+.ci{width:64px;height:64px;background:var(--gl);border-radius:50%;display:flex;align-items:center;justify-content:center;margin:0 auto 16px;}
+.ct{font-size:20px;font-weight:700;color:var(--n900);margin-bottom:6px;}
+.cs{font-size:14px;color:var(--n400);}
+.dr{display:flex;justify-content:space-between;align-items:center;padding:11px 16px;border-bottom:1px solid var(--n100);}
+.dr:last-child{border-bottom:none;}
+.dk{font-size:13px;color:var(--n400);}
+.dv{font-size:13px;font-weight:500;color:var(--n900);}
+
+/* 온보딩 */
+#s-ob{background:var(--w);justify-content:center;align-items:center;text-align:center;padding:40px 32px;min-height:100vh;overflow-y:auto;}
+.lc{width:80px;height:80px;border-radius:24px;background:var(--g);display:flex;align-items:center;justify-content:center;margin:0 auto 24px;box-shadow:0 8px 24px rgba(29,158,117,.3);}
+.lt{font-size:32px;font-weight:700;color:#fff;}
+.ot{font-size:28px;font-weight:700;color:var(--n900);margin-bottom:10px;}
+.os{font-size:15px;color:var(--n400);line-height:1.7;margin-bottom:40px;}
+.fl{text-align:left;margin-bottom:36px;width:100%;}
+.fi2{display:flex;align-items:center;gap:12px;padding:10px 0;}
+.fic{width:36px;height:36px;border-radius:10px;background:var(--gl);display:flex;align-items:center;justify-content:center;flex-shrink:0;}
+.ft h3{font-size:14px;font-weight:700;color:var(--n900);}
+.ft p{font-size:12px;color:var(--n400);margin-top:1px;}
+
+/* 스텝 */
+.stepbar{display:flex;align-items:center;gap:6px;padding:12px 20px 0;}
+.sdot{width:8px;height:8px;border-radius:50%;background:var(--n200);}
+.sdot.on{background:var(--g);width:24px;border-radius:4px;}
+.stxt{font-size:12px;color:var(--n400);margin-left:6px;}
+
+/* 토스트 */
+#toast{position:fixed;bottom:90px;left:50%;transform:translateX(-50%) translateY(20px);background:var(--n900);color:#fff;font-size:13px;font-weight:500;padding:10px 20px;border-radius:20px;z-index:999;opacity:0;transition:all .25s;pointer-events:none;white-space:nowrap;}
+#toast.on{opacity:1;transform:translateX(-50%) translateY(0);}
+
+@media(min-width:430px){
+  body{padding:24px 0;}
+  #app{min-height:calc(100vh - 48px);border-radius:32px;box-shadow:0 20px 60px rgba(0,0,0,.15);overflow:hidden;}
+  .bnav{border-radius:0 0 32px 32px;}
+}
+</style>
+</head>
+<body>
+<div id="app">
+
+<!-- ════ 온보딩 ════ -->
+<div class="scr on" id="s-ob">
+  <div class="lc"><span class="lt">챙</span></div>
+  <h1 class="ot">챙김</h1>
+  <p class="os">처방약부터 영양제, 병원 동행까지<br>건강을 함께 챙겨드려요</p>
+  <div class="fl">
+    <div class="fi2"><div class="fic"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#1D9E75" stroke-width="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg></div><div class="ft"><h3>식약처 약 정보 + 영양제 추천</h3><p>처방약에 맞는 영양제를 한 번에 확인</p></div></div>
+    <div class="fi2"><div class="fic"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#1D9E75" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12,6 12,12 16,14"/></svg></div><div class="ft"><h3>복약 알림</h3><p>약 먹을 시간을 제때 알려드려요</p></div></div>
+    <div class="fi2"><div class="fic"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#1D9E75" stroke-width="2"><rect x="1" y="3" width="15" height="13" rx="2"/><path d="M16 8h4l3 3v5h-7V8z"/><circle cx="5.5" cy="18.5" r="2.5"/><circle cx="18.5" cy="18.5" r="2.5"/></svg></div><div class="ft"><h3>병원 동행 + 보호자 연락</h3><p>이동 경로 안내 · 카카오톡으로 바로 연락</p></div></div>
+  </div>
+  <button class="btn btn-g" style="width:100%;margin:0;" onclick="go('home')">시작하기</button>
+</div>
+
+<!-- ════ 홈 ════ -->
+<div class="scr" id="s-home">
+  <div class="hdr"><h1>안녕하세요, 김영희님 👋</h1><p>오늘 복약 2/3 완료 · 잘 하고 계세요!</p></div>
+  <div class="sa">
+    <div class="nt nt-a" style="margin-top:16px;">⏰ 오후 2시 암로디핀 5mg 복용 시간이에요!</div>
+
+    <p class="sl">오늘 복약 일정</p>
+    <div class="cd">
+      <div class="pr"><div class="pd-dot dg"></div><div class="pi"><div class="ptl">오전 8:00</div><div class="pn">메트포르민 500mg · 아스피린 100mg</div></div><span class="b bg">완료</span></div>
+      <div class="pr"><div class="pd-dot da"></div><div class="pi"><div class="ptl">오후 2:00</div><div class="pn">암로디핀 5mg</div></div><span class="b ba">대기</span></div>
+      <div class="pr"><div class="pd-dot dn"></div><div class="pi"><div class="ptl">저녁 8:00</div><div class="pn">메트포르민 500mg</div></div><span class="b bn">예정</span></div>
+    </div>
+
+    <p class="sl">빠른 메뉴</p>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin:0 16px 12px;">
+      <div class="cd" style="margin:0;padding:16px;cursor:pointer;" onclick="go('drug');setDrugTab('search')">
+        <div style="width:32px;height:32px;border-radius:9px;background:var(--gl);display:flex;align-items:center;justify-content:center;margin-bottom:10px;"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#1D9E75" stroke-width="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg></div>
+        <div style="font-size:13px;font-weight:700;color:var(--n900);">약 정보 검색</div>
+        <div style="font-size:11px;color:var(--n400);margin-top:2px;">식약처 공식 데이터</div>
+      </div>
+      <div class="cd" style="margin:0;padding:16px;cursor:pointer;" onclick="go('drug');setDrugTab('supp')">
+        <div style="width:32px;height:32px;border-radius:9px;background:var(--pl);display:flex;align-items:center;justify-content:center;margin-bottom:10px;"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#3C3489" stroke-width="2"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01z"/></svg></div>
+        <div style="font-size:13px;font-weight:700;color:var(--n900);">영양제 추천</div>
+        <div style="font-size:11px;color:var(--n400);margin-top:2px;">처방 기반 맞춤 추천</div>
+      </div>
+      <div class="cd" style="margin:0;padding:16px;cursor:pointer;" onclick="go('care');setCareTab('apply')">
+        <div style="width:32px;height:32px;border-radius:9px;background:#E6F1FB;display:flex;align-items:center;justify-content:center;margin-bottom:10px;"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#185FA5" stroke-width="2"><rect x="1" y="3" width="15" height="13" rx="2"/><path d="M16 8h4l3 3v5h-7V8z"/></svg></div>
+        <div style="font-size:13px;font-weight:700;color:var(--n900);">병원 동행 신청</div>
+        <div style="font-size:11px;color:var(--n400);margin-top:2px;">이동 경로 추천</div>
+      </div>
+      <div class="cd" style="margin:0;padding:16px;cursor:pointer;" onclick="go('care');setCareTab('contact')">
+        <div style="width:32px;height:32px;border-radius:9px;background:#FEF9D7;display:flex;align-items:center;justify-content:center;margin-bottom:10px;"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#8B6914" stroke-width="2"><path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z"/></svg></div>
+        <div style="font-size:13px;font-weight:700;color:var(--n900);">보호자 연락</div>
+        <div style="font-size:11px;color:var(--n400);margin-top:2px;">카카오톡으로 바로 연락</div>
+      </div>
+    </div>
+
+    <p class="sl">다음 진료</p>
+    <div class="cd" style="cursor:pointer;" onclick="go('care');setCareTab('apply')">
+      <div class="pr">
+        <div style="width:32px;height:32px;border-radius:8px;background:var(--gl);display:flex;align-items:center;justify-content:center;flex-shrink:0;"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#1D9E75" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg></div>
+        <div class="pi"><div class="ptl">5월 18일 (토) 오전 10:00</div><div class="pn">서울 내과의원</div></div>
+        <span class="b ba">D-3</span>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ════ 약·영양제 탭 ════ -->
+<div class="scr" id="s-drug">
+  <div class="hdr"><h1>약·영양제</h1><p>검색하고 내게 맞는 영양제를 확인해요</p></div>
+  <div class="sa">
+    <!-- 서브탭 -->
+    <div class="stab">
+      <button class="stab-btn on" id="dt-search" onclick="setDrugTab('search')">💊 약 정보 검색</button>
+      <button class="stab-btn" id="dt-supp" onclick="setDrugTab('supp')">⭐ 영양제 추천</button>
+    </div>
+
+    <!-- 약 검색 패널 -->
+    <div id="dp-search">
+      <div class="sw">
+        <svg class="sic" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#888780" stroke-width="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+        <input class="si" id="drug-input" type="text" placeholder="약 이름 입력 (예: 메트포르민)" onkeydown="if(event.key==='Enter')searchDrug()">
+        <button class="sbtn" onclick="searchDrug()">검색</button>
+      </div>
+      <div id="sg">
+        <div class="nt nt-g" style="margin-top:12px;">💡 약 이름을 검색하면 식약처 공식 정보를<br>효능, 복용법, 주의사항까지 바로 확인할 수 있어요.</div>
+        <p class="sl">자주 찾는 약</p>
+        <div class="chip-list">
+          <div class="chip" onclick="qs('메트포르민')">메트포르민</div>
+          <div class="chip" onclick="qs('암로디핀')">암로디핀</div>
+          <div class="chip" onclick="qs('아스피린')">아스피린</div>
+          <div class="chip" onclick="qs('타이레놀')">타이레놀</div>
+          <div class="chip" onclick="qs('리피토')">리피토</div>
+          <div class="chip" onclick="qs('글리메피리드')">글리메피리드</div>
+          <div class="chip" onclick="qs('오메프라졸')">오메프라졸</div>
+        </div>
+      </div>
+      <div id="sl2" style="display:none;"><div class="ld"><div class="spin"></div><p style="font-size:14px;">식약처에서 정보를 가져오는 중...</p></div></div>
+      <div id="se" style="display:none;"><div class="eb"><svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="#E2E0D9" stroke-width="1.5"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg><p>검색 결과가 없어요.<br>다른 이름으로 검색해보세요.</p></div></div>
+      <div id="sr"></div>
+      <div id="sd" style="display:none;"></div>
+    </div>
+
+    <!-- 영양제 추천 패널 -->
+    <div id="dp-supp" style="display:none;">
+      <div class="nt nt-a" style="margin-top:12px;">⚠️ 아래 내용은 참고용이에요. 복용 전 의사·약사와 꼭 확인하세요.</div>
+      <p class="sl">처방약 분석</p>
+      <div class="cd">
+        <div style="display:flex;justify-content:space-between;align-items:center;padding:11px 16px;border-bottom:1px solid var(--n100);gap:8px;"><div><div style="font-size:14px;font-weight:500;color:var(--n900);">메트포르민 500mg</div><div style="font-size:12px;color:var(--n400);margin-top:2px;">당뇨약 · 장기 복용 시 B12 흡수 저하</div></div><span class="b ba">주의</span></div>
+        <div style="display:flex;justify-content:space-between;align-items:center;padding:11px 16px;border-bottom:1px solid var(--n100);gap:8px;"><div><div style="font-size:14px;font-weight:500;color:var(--n900);">암로디핀 5mg</div><div style="font-size:12px;color:var(--n400);margin-top:2px;">혈압약 · 마그네슘 수치 확인 권장</div></div><span class="b ba">주의</span></div>
+        <div style="display:flex;justify-content:space-between;align-items:center;padding:11px 16px;gap:8px;"><div><div style="font-size:14px;font-weight:500;color:var(--n900);">아스피린 100mg</div><div style="font-size:12px;color:var(--n400);margin-top:2px;">혈전 예방 · 영양제 간섭 낮음</div></div><span class="b bg">양호</span></div>
+      </div>
+      <p class="sl">맞춤 영양제 추천</p>
+      <div class="sc rec">
+        <div class="sh"><span class="sn">비타민 B12 (메틸코발라민)</span><span class="b bp">1순위</span></div>
+        <p class="sw2">메트포르민 장기 복용 시 B12 흡수를 방해해요. 신경 건강과 빈혈 예방에 꼭 필요해요.</p>
+        <div class="sp2"><div class="spd dok"></div><p class="spt tok">메트포르민과 2시간 이상 간격 두고 복용</p></div>
+        <div class="sp2"><div class="spd dok"></div><p class="spt tok">식사와 함께 복용 시 흡수율 높아짐</p></div>
+        <div class="sp2"><div class="spd dok"></div><p class="spt tok">권장 용량: 하루 500~1000mcg</p></div>
+      </div>
+      <div class="sc">
+        <div class="sh"><span class="sn">마그네슘 (글리시네이트)</span><span class="b bp">2순위</span></div>
+        <p class="sw2">혈압 조절을 돕고 암로디핀 효과를 보조해요. 수면·근육 경련에도 도움이 돼요.</p>
+        <div class="sp2"><div class="spd dok"></div><p class="spt tok">암로디핀과 함께 복용 가능</p></div>
+        <div class="sp2"><div class="spd dok"></div><p class="spt tok">저녁 식후 또는 취침 전 권장</p></div>
+        <div class="sp2"><div class="spd dwn"></div><p class="spt twn">신장 기능 저하 시 의사 확인 필수</p></div>
+      </div>
+      <div class="sc">
+        <div class="sh"><span class="sn">비타민 D3 + K2</span><span class="b bp">3순위</span></div>
+        <p class="sw2">당뇨 환자에게 부족하기 쉬운 비타민 D. 면역력·뼈 건강에 도움이 돼요.</p>
+        <div class="sp2"><div class="spd dok"></div><p class="spt tok">지용성 — 반드시 식사 후 복용</p></div>
+        <div class="sp2"><div class="spd dwn"></div><p class="spt twn">아스피린 병용 시 혈액 응고 영향 가능</p></div>
+      </div>
+      <div class="sc">
+        <div class="sh"><span class="sn">오메가-3 (EPA+DHA)</span><span class="b bp">4순위</span></div>
+        <p class="sw2">심혈관 건강 보조로 당뇨·고혈압 환자에게 권장돼요.</p>
+        <div class="sp2"><div class="spd dok"></div><p class="spt tok">식사와 함께 복용</p></div>
+        <div class="sp2"><div class="spd dwn"></div><p class="spt twn">아스피린 고용량 병용 시 출혈 위험 — 의사 확인</p></div>
+      </div>
+      <div style="height:20px;"></div>
+    </div>
+  </div>
+</div>
+
+<!-- ════ 동행·케어 탭 ════ -->
+<div class="scr" id="s-care">
+  <div class="hdr"><h1>동행·케어</h1><p>병원 이동부터 보호자 연락까지</p></div>
+  <div class="sa">
+    <!-- 서브탭 -->
+    <div class="stab">
+      <button class="stab-btn on" id="ct-main" onclick="setCareTab('main')">🏠 메인</button>
+      <button class="stab-btn" id="ct-apply" onclick="setCareTab('apply')">🚗 동행 신청</button>
+      <button class="stab-btn" id="ct-contact" onclick="setCareTab('contact')">💬 보호자</button>
+    </div>
+
+    <!-- 메인 패널 -->
+    <div id="cp-main">
+      <div class="care-header">
+        <div class="care-title">병원 동행 서비스</div>
+        <div class="care-sub">진료 예약부터 이동, 복약 확인까지<br>담당자가 함께해요</div>
+      </div>
+      <div class="care-grid">
+        <div class="care-box" onclick="setCareTab('apply')">
+          <div class="care-box-icon" style="background:var(--gl);"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#1D9E75" stroke-width="2"><rect x="1" y="3" width="15" height="13" rx="2"/><path d="M16 8h4l3 3v5h-7V8z"/></svg></div>
+          <h3>동행 신청</h3>
+          <p>병원 이동 경로 추천 및 담당자 연결</p>
+        </div>
+        <div class="care-box" onclick="setCareTab('contact')">
+          <div class="care-box-icon" style="background:#FEF9D7;"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#8B6914" stroke-width="2"><path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z"/></svg></div>
+          <h3>보호자 연락</h3>
+          <p>카카오톡으로 바로 연락</p>
+        </div>
+      </div>
+
+      <p class="sl">예정된 일정</p>
+      <div class="cd">
+        <div class="pr"><div style="width:32px;height:32px;border-radius:8px;background:var(--gl);display:flex;align-items:center;justify-content:center;flex-shrink:0;"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#1D9E75" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg></div><div class="pi"><div class="ptl">5월 18일 (토) 오전 10:00</div><div class="pn">서울 내과의원 · 복지관 셔틀</div></div><span class="b ba">D-3</span></div>
+        <div class="pr"><div style="width:32px;height:32px;border-radius:8px;background:var(--gl);display:flex;align-items:center;justify-content:center;flex-shrink:0;"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#1D9E75" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg></div><div class="pi"><div class="ptl">5월 25일 (토) 오후 2:00</div><div class="pn">정형외과 외래</div></div><span class="b bn">대기</span></div>
+      </div>
+
+      <p class="sl">복약 확인</p>
+      <div class="cd">
+        <div style="display:flex;align-items:center;gap:12px;padding:12px 16px;border-bottom:1px solid var(--n100);cursor:pointer;" onclick="tc(this)">
+          <div class="chkb on"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2.5"><polyline points="20,6 9,17 4,12"/></svg></div>
+          <span style="font-size:14px;color:var(--n900);">오전 약 복용 완료</span>
+        </div>
+        <div style="display:flex;align-items:center;gap:12px;padding:12px 16px;border-bottom:1px solid var(--n100);cursor:pointer;" onclick="tc(this)">
+          <div class="chkb"></div>
+          <span style="font-size:14px;color:var(--n900);">오후 약 복용 완료</span>
+        </div>
+        <div style="display:flex;align-items:center;gap:12px;padding:12px 16px;cursor:pointer;" onclick="tc(this)">
+          <div class="chkb"></div>
+          <span style="font-size:14px;color:var(--n900);">저녁 약 복용 완료</span>
+        </div>
+      </div>
+      <style>.chkb{width:24px;height:24px;border-radius:6px;border:2px solid var(--n200);display:flex;align-items:center;justify-content:center;flex-shrink:0;transition:all .15s;}.chkb.on{background:var(--g);border-color:var(--g);}</style>
+    </div>
+
+    <!-- 동행 신청 패널 -->
+    <div id="cp-apply" style="display:none;">
+      <div class="stepbar"><div class="sdot on"></div><div class="sdot"></div><div class="sdot"></div><span class="stxt">1단계 · 정보 입력</span></div>
+      <div class="cd" style="margin-top:12px;"><div class="fs">
+        <div class="fg"><label>이름</label><input type="text" placeholder="홍길동"></div>
+        <div class="fg"><label>연락처</label><input type="tel" placeholder="010-0000-0000"></div>
+        <div class="fg"><label>보호자 연락처</label><input type="tel" placeholder="010-0000-0000"></div>
+      </div></div>
+      <div class="cd"><div class="fs">
+        <div class="fg"><label>출발 주소</label><input type="text" placeholder="예) 서울 은평구 응암동 123-45"></div>
+        <div class="fg"><label>방문 병원 / 약국</label><input type="text" placeholder="예) 서울 내과의원"></div>
+        <div class="fr"><div class="fg"><label>희망 날짜</label><input type="date"></div><div class="fg"><label>희망 시간</label><input type="time" value="10:00"></div></div>
+        <div class="fg"><label>이동 방법</label><select><option>추천받기</option><option>복지관 셔틀</option><option>카카오택시 동행</option><option>버스 + 도보</option><option>가족 차량</option></select></div>
+      </div></div>
+      <button class="btn btn-g" onclick="setCareTab('route')">경로 확인하기 →</button>
+      <button class="btn btn-n" onclick="setCareTab('main')">취소</button>
+      <div style="height:20px;"></div>
+    </div>
+
+    <!-- 경로 추천 패널 -->
+    <div id="cp-route" style="display:none;">
+      <div class="stepbar"><div class="sdot"></div><div class="sdot on"></div><div class="sdot"></div><span class="stxt">2단계 · 경로 확인</span></div>
+      <div style="margin:12px 16px 12px;border-radius:16px;overflow:hidden;border:1px solid var(--n200);height:150px;">
+        <svg width="100%" height="150" viewBox="0 0 400 150" xmlns="http://www.w3.org/2000/svg">
+          <rect width="400" height="150" fill="#D8EFE4"/>
+          <rect x="70" y="0" width="18" height="150" fill="#fff" opacity="0.55"/>
+          <rect x="160" y="0" width="12" height="150" fill="#fff" opacity="0.5"/>
+          <rect x="250" y="0" width="12" height="150" fill="#fff" opacity="0.5"/>
+          <rect x="0" y="66" width="400" height="16" fill="#fff" opacity="0.55"/>
+          <rect x="88" y="8" width="64" height="54" rx="5" fill="#9FE1CB" opacity="0.7"/>
+          <rect x="172" y="8" width="70" height="54" rx="5" fill="#9FE1CB" opacity="0.7"/>
+          <rect x="262" y="8" width="60" height="54" rx="5" fill="#9FE1CB" opacity="0.7"/>
+          <polyline points="36,74 158,74 158,34 245,34" stroke="#1D9E75" stroke-width="4" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
+          <circle cx="36" cy="74" r="9" fill="#1D9E75"/><circle cx="36" cy="74" r="4" fill="#fff"/>
+          <circle cx="245" cy="34" r="12" fill="#1D9E75"/>
+          <text x="245" y="39" text-anchor="middle" font-size="14" fill="#fff" font-weight="700">+</text>
+          <rect x="4" y="62" width="28" height="14" rx="4" fill="#0F6E56"/><text x="18" y="72" text-anchor="middle" font-size="9" fill="#fff" font-family="sans-serif">출발</text>
+          <rect x="249" y="22" width="28" height="14" rx="4" fill="#0F6E56"/><text x="263" y="32" text-anchor="middle" font-size="9" fill="#fff" font-family="sans-serif">도착</text>
+          <rect x="108" y="48" width="52" height="16" rx="8" fill="#fff" opacity="0.9"/>
+          <text x="134" y="59" text-anchor="middle" font-size="10" fill="#0F6E56" font-weight="700" font-family="sans-serif">약 2.3km</text>
+        </svg>
+      </div>
+      <p class="sl" style="padding-top:4px;">이동 수단 비교</p>
+      <div class="route-card rec">
+        <div class="ri ri-g"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#1D9E75" stroke-width="2"><rect x="1" y="3" width="15" height="13" rx="2"/><path d="M16 8h4l3 3v5h-7V8z"/><circle cx="5.5" cy="18.5" r="2.5"/><circle cx="18.5" cy="18.5" r="2.5"/></svg></div>
+        <div style="flex:1;min-width:0;"><div style="margin-bottom:4px;"><span class="b bg">추천</span></div><div class="rti">복지관 셔틀버스</div><div class="rtd">은평복지관 출발 · 오전 9:30 · 병원 앞 하차</div><div class="rtm"><span class="b bn">약 18분</span><span class="b bg">무료</span></div></div>
+      </div>
+      <div class="route-card">
+        <div class="ri ri-b"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#185FA5" stroke-width="2"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0118 0z"/><circle cx="12" cy="10" r="3"/></svg></div>
+        <div style="flex:1;min-width:0;"><div class="rti">카카오택시 (담당자 동행)</div><div class="rtd">집 앞 픽업 · 담당자와 함께 탑승</div><div class="rtm"><span class="b bn">약 12분</span><span class="b ba">약 6,500원</span></div></div>
+      </div>
+      <div class="route-card">
+        <div class="ri ri-a"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#854F0B" stroke-width="2"><rect x="2" y="7" width="20" height="13" rx="2"/><path d="M16 7V5a2 2 0 00-2-2h-4a2 2 0 00-2 2v2"/></svg></div>
+        <div style="flex:1;min-width:0;"><div class="rti">버스 + 도보</div><div class="rtd">703번 → 응암역 → 도보 5분</div><div class="rtm"><span class="b bn">약 25분</span><span class="b bg">1,500원</span></div></div>
+      </div>
+      <button class="btn btn-call" onclick="showToast('카카오맵으로 연결 중...')">카카오맵에서 상세 경로 보기</button>
+      <button class="btn btn-g" onclick="setCareTab('done')">복지관 셔틀로 신청 완료 →</button>
+      <button class="btn btn-n" onclick="setCareTab('apply')">← 다시 입력하기</button>
+      <div style="height:20px;"></div>
+    </div>
+
+    <!-- 신청 완료 패널 -->
+    <div id="cp-done" style="display:none;">
+      <div class="stepbar"><div class="sdot"></div><div class="sdot"></div><div class="sdot on"></div><span class="stxt">3단계 · 접수 완료</span></div>
+      <div class="cc">
+        <div class="ci"><svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="#1D9E75" stroke-width="2.5"><polyline points="20,6 9,17 4,12"/></svg></div>
+        <div class="ct">신청이 접수됐어요!</div>
+        <div class="cs">2시간 내 담당자가 카카오톡으로 연락드립니다</div>
+      </div>
+      <div class="cd">
+        <div class="dr"><span class="dk">방문지</span><span class="dv">서울 내과의원</span></div>
+        <div class="dr"><span class="dk">일시</span><span class="dv">5월 18일 오전 10:00</span></div>
+        <div class="dr"><span class="dk">이동 방법</span><span class="dv" style="color:var(--g);">복지관 셔틀버스</span></div>
+        <div class="dr"><span class="dk">예상 소요</span><span class="dv">약 18분</span></div>
+      </div>
+      <div class="nt nt-g" style="margin:0 16px 12px;">진료 2일 전 카카오톡으로 출발 시간을 다시 안내드려요.</div>
+      <button class="btn btn-g" onclick="go('home')">홈으로 돌아가기</button>
+      <div style="height:20px;"></div>
+    </div>
+
+    <!-- 보호자 연락 패널 -->
+    <div id="cp-contact" style="display:none;">
+      <div style="margin:16px 16px 0;background:linear-gradient(135deg,#FEE500,#F5D800);border-radius:16px;padding:20px;">
+        <div style="display:flex;align-items:center;gap:12px;margin-bottom:12px;">
+          <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="#3A1D1D" stroke-width="2"><path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z"/></svg>
+          <div><div style="font-size:16px;font-weight:700;color:#3A1D1D;">카카오톡으로 연락</div><div style="font-size:12px;color:#5A3D1D;margin-top:2px;">보호자에게 바로 메시지가 전달돼요</div></div>
+        </div>
+      </div>
+
+      <p class="sl">연락 유형 선택</p>
+      <div class="cd">
+        <div class="pr" style="cursor:pointer;" onclick="sendKakao('복약 알림')">
+          <div style="width:36px;height:36px;border-radius:10px;background:var(--gl);display:flex;align-items:center;justify-content:center;flex-shrink:0;"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#1D9E75" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12,6 12,12 16,14"/></svg></div>
+          <div class="pi"><div style="font-size:14px;font-weight:500;color:var(--n900);">복약 확인 요청</div><div style="font-size:12px;color:var(--n400);margin-top:2px;">"약 드셨나요?" 메시지 전송</div></div>
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#E2E0D9" stroke-width="2"><polyline points="9,18 15,12 9,6"/></svg>
+        </div>
+        <div class="pr" style="cursor:pointer;" onclick="sendKakao('병원 동행 안내')">
+          <div style="width:36px;height:36px;border-radius:10px;background:#E6F1FB;display:flex;align-items:center;justify-content:center;flex-shrink:0;"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#185FA5" stroke-width="2"><rect x="1" y="3" width="15" height="13" rx="2"/><path d="M16 8h4l3 3v5h-7V8z"/></svg></div>
+          <div class="pi"><div style="font-size:14px;font-weight:500;color:var(--n900);">병원 방문 안내</div><div style="font-size:12px;color:var(--n400);margin-top:2px;">진료 일정 및 이동 정보 공유</div></div>
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#E2E0D9" stroke-width="2"><polyline points="9,18 15,12 9,6"/></svg>
+        </div>
+        <div class="pr" style="cursor:pointer;" onclick="sendKakao('긴급 연락')">
+          <div style="width:36px;height:36px;border-radius:10px;background:var(--rl);display:flex;align-items:center;justify-content:center;flex-shrink:0;"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#E24B4A" stroke-width="2"><path d="M10.29 3.86L1.82 18a2 2 0 001.71 3h16.94a2 2 0 001.71-3L13.71 3.86a2 2 0 00-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg></div>
+          <div class="pi"><div style="font-size:14px;font-weight:500;color:var(--n900);">긴급 연락</div><div style="font-size:12px;color:var(--n400);margin-top:2px;">즉시 보호자에게 알림 전송</div></div>
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#E2E0D9" stroke-width="2"><polyline points="9,18 15,12 9,6"/></svg>
+        </div>
+      </div>
+
+      <p class="sl">직접 메시지 보내기</p>
+      <div class="cd"><div class="fs">
+        <div class="fg"><label>메시지 내용</label><textarea placeholder="보호자에게 전달할 내용을 입력하세요..."></textarea></div>
+      </div></div>
+      <button class="kakao-btn" onclick="sendKakao('직접 메시지')">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#3A1D1D" stroke-width="2"><path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z"/></svg>
+        카카오톡으로 보내기
+      </button>
+      <div class="nt nt-g" style="margin:0 16px 12px;">보호자 카카오톡 채널: <strong>챙김 케어</strong><br>연결 설정은 담당자가 도와드려요.</div>
+      <div style="height:20px;"></div>
+    </div>
+  </div>
+</div>
+
+<!-- ════ 바텀 네비 ════ -->
+<nav class="bnav" id="bnav" style="display:none;">
+  <div class="ni on" data-tab="home" onclick="go('home')">
+    <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#1D9E75" stroke-width="1.8" id="ic-home"><path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z"/><polyline points="9,22 9,12 15,12 15,22"/></svg>
+    <span class="nl">홈</span><div class="ndot"></div>
+  </div>
+  <div class="ni" data-tab="drug" onclick="go('drug')">
+    <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="var(--n400)" stroke-width="1.8" id="ic-drug"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+    <span class="nl">약·영양제</span><div class="ndot"></div>
+  </div>
+  <div class="ni" data-tab="care" onclick="go('care')">
+    <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="var(--n400)" stroke-width="1.8" id="ic-care"><rect x="1" y="3" width="15" height="13" rx="2"/><path d="M16 8h4l3 3v5h-7V8z"/><circle cx="5.5" cy="18.5" r="2.5"/><circle cx="18.5" cy="18.5" r="2.5"/></svg>
+    <span class="nl">동행·케어</span><div class="ndot"></div>
+  </div>
+</nav>
+
+<div id="toast"></div>
+
+<script>
+// ── API ──
+const API_KEY = '440da475c32708fe85038893d9a98848a97c2e5044c9c4c17a59230b806d547f';
+const API_URL = 'https://apis.data.go.kr/1471000/DrbEasyDrugInfoService/getDrbEasyDrugList';
+
+// ── 화면 전환 ──
+const TABS = {home:'s-home', drug:'s-drug', care:'s-care'};
+const ICONS = {home:'ic-home', drug:'ic-drug', care:'ic-care'};
+
+function go(tab) {
+  document.querySelectorAll('.scr').forEach(s=>{s.classList.remove('on');s.style.display='none';});
+  const t = document.getElementById(TABS[tab] || 's-'+tab);
+  if(t){t.classList.add('on');t.style.display='flex';}
+  document.getElementById('bnav').style.display = (tab==='ob') ? 'none' : 'flex';
+  document.querySelectorAll('.ni').forEach(ni=>{
+    ni.classList.remove('on');
+    const ic=document.getElementById(ICONS[ni.dataset.tab]);
+    if(ic)ic.setAttribute('stroke','var(--n400)');
+  });
+  const ni=document.querySelector(`.ni[data-tab="${tab}"]`);
+  if(ni){ni.classList.add('on');const ic=document.getElementById(ICONS[tab]);if(ic)ic.setAttribute('stroke','#1D9E75');}
+  window.scrollTo(0,0);
+}
+
+// ── 약 탭 서브탭 ──
+function setDrugTab(t) {
+  ['search','supp'].forEach(k=>{
+    document.getElementById('dp-'+k).style.display = k===t ? 'block' : 'none';
+    document.getElementById('dt-'+k).classList.toggle('on', k===t);
+  });
+}
+
+// ── 동행 탭 서브탭 ──
+function setCareTab(t) {
+  ['main','apply','route','done','contact'].forEach(k=>{
+    document.getElementById('cp-'+k).style.display = k===t ? 'block' : 'none';
+  });
+  ['main','apply','contact'].forEach(k=>{
+    const btn = document.getElementById('ct-'+k);
+    if(btn) btn.classList.toggle('on', k===t || (t==='route'&&k==='apply') || (t==='done'&&k==='apply'));
+  });
+}
+
+// ── 약 검색 ──
+let drugItems = [];
+async function searchDrug() {
+  const q = document.getElementById('drug-input').value.trim();
+  if(!q){showToast('약 이름을 입력해주세요');return;}
+  document.getElementById('sg').style.display='none';
+  document.getElementById('sl2').style.display='block';
+  document.getElementById('sr').innerHTML='';
+  document.getElementById('se').style.display='none';
+  document.getElementById('sd').style.display='none';
+  document.getElementById('sr').style.display='block';
+  try {
+    const url=`${API_URL}?serviceKey=${API_KEY}&itemName=${encodeURIComponent(q)}&type=json&numOfRows=5`;
+    const res=await fetch(url);
+    const json=await res.json();
+    const items=json?.body?.items||[];
+    document.getElementById('sl2').style.display='none';
+    if(!items.length){document.getElementById('se').style.display='block';return;}
+    drugItems=items;
+    renderList(items);
+  } catch(e) {
+    document.getElementById('sl2').style.display='none';
+    document.getElementById('sr').innerHTML=`<div class="nt nt-r" style="margin-top:12px;">⚠️ 검색 오류가 발생했어요.<br><small>배포된 주소(github.io)에서 정상 작동해요.</small></div>`;
+  }
+}
+
+function renderList(items) {
+  const el=document.getElementById('sr');
+  el.innerHTML=`<p class="sl">검색 결과 ${items.length}개</p>`;
+  items.forEach((item,i)=>{
+    el.innerHTML+=`<div class="drc" onclick="showDetail(${i})" style="margin-bottom:8px;cursor:pointer;"><div class="drh"><div><div class="drn">${item.itemName||'약품명 없음'}</div><div class="drc2">${item.entpName||''}</div></div><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#888780" stroke-width="2"><polyline points="9,18 15,12 9,6"/></svg></div></div>`;
+  });
+}
+
+function showDetail(i) {
+  const item=drugItems[i];
+  const cl=s=>s?s.replace(/<[^>]*>/g,'').replace(/\n/g,'<br>').trim():'정보 없음';
+  document.getElementById('sr').style.display='none';
+  const d=document.getElementById('sd');
+  d.style.display='block';
+  d.innerHTML=`
+    <div style="padding:12px 16px 4px;display:flex;align-items:center;gap:8px;cursor:pointer;" onclick="backToList()">
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#888780" stroke-width="2"><polyline points="15,18 9,12 15,6"/></svg>
+      <span style="font-size:13px;color:var(--n400);">검색 결과로 돌아가기</span>
+    </div>
+    <div class="drc" style="margin-bottom:12px;">
+      <div class="drh" style="cursor:default;"><div><div class="drn">${item.itemName||''}</div><div class="drc2">${item.entpName||''}</div></div><span class="b bg">식약처 공식</span></div>
+      ${item.efcyQesitm?`<div class="dsec"><div class="dst">💊 효능·효과</div><div class="dsb">${cl(item.efcyQesitm)}</div></div>`:''}
+      ${item.useMethodQesitm?`<div class="dsec"><div class="dst">📋 복용 방법</div><div class="dsb">${cl(item.useMethodQesitm)}</div></div>`:''}
+      ${item.atpnWarnQesitm?`<div class="dsec"><div class="dst">⚠️ 경고</div><div class="warnb"><p>${cl(item.atpnWarnQesitm)}</p></div></div>`:''}
+      ${item.atpnQesitm?`<div class="dsec"><div class="dst">🚫 주의사항</div><div class="dsb">${cl(item.atpnQesitm)}</div></div>`:''}
+      ${item.intrcQesitm?`<div class="dsec"><div class="dst">🔄 상호작용</div><div class="dsb">${cl(item.intrcQesitm)}</div></div>`:''}
+      ${item.seQesitm?`<div class="dsec"><div class="dst">📌 부작용</div><div class="dsb">${cl(item.seQesitm)}</div></div>`:''}
+      ${item.depositMethodQesitm?`<div class="dsec"><div class="dst">📦 보관법</div><div class="dsb">${cl(item.depositMethodQesitm)}</div></div>`:''}
+    </div><div style="height:20px;"></div>`;
+}
+
+function backToList() {
+  document.getElementById('sd').style.display='none';
+  document.getElementById('sr').style.display='block';
+}
+function qs(name){document.getElementById('drug-input').value=name;searchDrug();}
+
+// ── 카카오톡 연락 ──
+function sendKakao(type) {
+  showToast(`보호자에게 "${type}" 메시지를 보냈어요!`);
+}
+
+// ── 체크박스 ──
+function tc(el) {
+  const b=el.querySelector('.chkb');
+  const on=b.classList.toggle('on');
+  b.innerHTML=on?'<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2.5"><polyline points="20,6 9,17 4,12"/></svg>':'';
+  if(on) showToast('복약 확인 완료!');
+}
+
+// ── 토스트 ──
+let _tt;
+function showToast(msg){
+  const t=document.getElementById('toast');
+  t.textContent=msg;t.classList.add('on');
+  clearTimeout(_tt);_tt=setTimeout(()=>t.classList.remove('on'),2200);
+}
+
+// 온보딩 시작
+document.getElementById('bnav').style.display='none';
+</script>
+</body>
+</html>
